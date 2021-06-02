@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <meta charset="utf-8"> 
+   <title>中文書籍</title>
+   <script type="text/javascript"></script>
+   <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">  
+   <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+   <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+</head>
+<body>
+{%for i in range(longdata)%}
+<div class="example"id="{{i}}" a="{{content[i][0]}}" need="{{content[i][1]}}" cost="{{content[i][3]}}"></div>
+{%endfor%}
+
+<div class="col-lg-10 col-md-offset-1" style="font-size: 150%;  background-color:#3C3C3C;">
+<ul class="nav nav-pills">
+        <li class="col-lg-2"style="text-align:center;" ><a href="http://localhost:5000/buy" style="color:#FF5809;">Home</a></li>
+        <li class="col-lg-2"style="text-align:center;"><a href="http://localhost:5000/chinese" style="color:#FF5809;">中文書</a></li>
+        <li class="col-lg-2"style="text-align:center;"><a href="http://localhost:5000/english" style="color:#FF5809;">英文書</a></li>
+        <li class="col-lg-2"style="text-align:center;"><a href="http://localhost:5000/kid" style="color:#FF5809;">兒童書</a></li>
+        <li class="col-lg-2"style="text-align:center;"><a href="http://localhost:5000/sellgood" style="color:#FF5809;">暢銷排行榜</a></li>
+        <li class="col-lg-1"style="text-align:center;"><a href="http://localhost:5000/shopping" style="color:#FF5809;">購物車</a></li>
+
+</ul>
+</div>
+
+
+
+
+
+
+
+
+<div class="col-lg-12 "style="border-bottom-style:solid;" >
+        <div class="col-lg-10 col-md-offset-1">
+                <font size=50px>購物車</font>
+        </div>
+</div>
+
+<div class="col-lg-12" style="height:30px;text-align:center;">
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+{% for message in messages %}
+<div style="background-color:#FFFF93;">
+<font size="5">{{ message }}</font>
+</div>
+{% endfor %}
+{% endif %}
+{% endwith %}
+</div>
+
+<div class="col-lg-10 col-md-offset-1">
+<table border='0' width="100%" style="color:white;background-color:black">
+    <tr>
+        <td width="60%"><font size="5">商品資訊</td>
+	<td width="10%" style="text-align:center;"><font size="5>">價錢</td>
+	<td width="10%" style="text-align:center;"><font size="5">數量</td>
+        <td width="10%" style="text-align:center;"><font size="5>">總計</td>
+        <td width="10%" style="text-align:center;"></td>
+
+    </tr>
+
+
+</table>
+</div>
+
+<div class="col-lg-10 col-md-offset-1">
+<table border='0' width="100%">
+
+{%for i in content%}
+<tr>
+<td width="60%"><img src="{{i[2]}}" height="180" with="136.6">{{i[4]}}</td>
+<td width="10%" style="text-align:center;font-size:20px;font-weight:bold"><span >{{i[3]}}</span></td>
+
+<td width="10%" style="text-align:center;">
+<input class="but"type="button"id="sub" onclick="b_sub(this)"  value="-">
+<input type="text" id="{{i[0]}}" class="varneed"name="need"  value="{{i[1]}}" style="width:50px; text-align:center;">
+<input class="but"type="button" onclick="b_add(this)"value="+">
+</td>
+
+<td width=10% style="text-align:center;font-size:20px;"><span id="{{i[0]}}all" style="color:red"></span></td>
+<td width=10% style="text-align:center;">
+<form action="/shopping/delete" method="post">
+<input type="hidden" name="did" value="{{i[0]}}">
+<input type="submit" value="刪除商品">
+</form>
+
+<form action="/shopping/buy" method="post">
+<div><input type="hidden" name="did" value="{{i[0]}}"></div>
+<div><input class="cneed" type="hidden" name="need" value="{{i[1]}}"></div>
+<div><input type="submit" value="購買商品"></div>
+
+</form>
+
+</td>
+</tr>
+{%endfor%}
+</table>
+</div>
+<div class="col-lg-10 col-md-offset-1">
+<table border='0' width="100%">
+<tr>
+<td width="90%"></td>
+<td width=10% style="text-align:center;">
+<form action="/shopping" method="GET">
+<div><input type="submit"  onclick="allbuy()"value="全部購買"></div>
+</form>
+</td>
+</tr>
+</table>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+function b_add(where) {
+	var buy=$(where).prev().val(); //$()jquery物件
+        if(buy > 0){ 
+        $(where).prev().prev().attr('disabled',false);
+        }
+        buy++;
+	$(where).parent().next().next().children().next().children().children(".cneed").attr({"value":buy}); //刪除商品的影藏參數
+	$(where).prev().val(buy);									     //數量
+	var all=$(where).parent().prev().children().text();
+	all=all*buy;
+	$(where).parent().next().children().text(all);							     //總計
+	//////
+	var a=$(where).prev().attr('id'); // id 
+        var b=$(where).prev().val();	  // 數量
+	var test = new Object();        
+        test.name = a;
+        test.need = b;
+	var data = JSON.stringify(test);
+	$.ajax({
+        url:"/addshopping",
+        type:"POST",
+        data:data
+        
+        
+        })
+	
+	
+
+	
+}
+
+function b_sub(where) {
+        var buy=$(where).next().val();
+        if(buy < 3){ 
+        $(where).attr('disabled',true);
+        }
+        buy--;
+        $(where).parent().next().next().children().next().children().children(".cneed").attr({"value":buy});
+
+        $(where).next().val(buy);
+	var all=$(where).parent().prev().children().text();
+	all=all*buy;
+	$(where).parent().next().children().text(all);
+	/////////////////////
+	var a=$(where).next().attr('id'); // id
+        var b=$(where).next().val();      // 數量
+        var test = new Object();
+        test.name = a;
+        test.need = b;
+        var data = JSON.stringify(test);
+        $.ajax({
+        url:"/addshopping",
+        type:"POST",
+        data:data
+
+
+        })
+
+}
+
+
+
+
+$(function(){
+	var obj = document.getElementsByClassName("example");            
+        var maxi = obj.length;
+    	for(var i = 0; i < maxi; i++){
+        	var varId = obj[i].id;
+        	var vala = document.getElementById(varId).getAttribute('a');
+                var valneed = document.getElementById(varId).getAttribute('need');
+		var valcost = document.getElementById(varId).getAttribute('cost');
+
+		document.getElementById(vala+"all").innerHTML=(valcost*valneed);
+    	}
+
+});
+
+
+
+function allbuy(){
+        var obj = document.getElementsByClassName("example");           
+	var varneed = document.getElementsByClassName("varneed");           
+        var maxi = obj.length;
+	var test = new Object();	
+	test.name = [];
+	test.need = [];
+        for(var i = 0; i < maxi; i++){
+	var varId = obj[i].id;
+	var needId = varneed[i].id;
+        var vala = document.getElementById(varId).getAttribute('a');
+	var valneed = document.getElementById(needId).value;
+	test.name = test.name.concat([vala]);
+	test.need = test.need.concat([valneed]);
+	}
+	var data = JSON.stringify(test)
+	$.ajax({
+	url:"/buy_all",
+	type:"POST",
+	data:data
+	
+	
+	})
+
+}
+
+
+
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+
+
+
+
+
+
+
+
+
+
+
+
+</html>

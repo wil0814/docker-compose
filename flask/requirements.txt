@@ -1,0 +1,6 @@
+Flask
+flask-requests
+Flask-Jsonpify
+Flask-Flash
+PyMySQL
+
