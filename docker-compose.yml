@@ -1,7 +1,7 @@
 version: '3'
 services:
   db:
-     image: mariadb
+     build: /mariadb
      restart : always
      container_name: mariadb
      environment:
